@@ -1,0 +1,20 @@
+#set the base image
+FROM docker.io/node:18-alpine
+
+# create the working directly
+WORKDIR /usr/app
+
+# # copy entire PWD code to working directly
+# COPY . /usr/app/
+
+#copy the packages .json in to the container
+COPY ./package.json ./
+
+#install Dependencies
+RUN npm install
+
+#copy the rest of files
+COPY ./ ./
+
+#Startup Command
+CMD [ "npm","start" ]
