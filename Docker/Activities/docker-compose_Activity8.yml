@@ -1,0 +1,46 @@
+services:
+   # postgres Database
+  postgres:
+    image: docker.io/postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres-password
+    
+   # Redis Database
+  redis:
+    image: docker.io/redis
+    command: ["redis-server", "--protected-mode", "no"]
+   # Express API server
+  api:
+    build: ./server
+      #context: path to the docker file
+      #name of the docker file if it is not has standard name
+      #dockerfile: dockerfile-text
+    image: docker.io/gordepuja8788/complex-api
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=postgres-password
+      - PGDATABASE=postgres
+   # Worker service
+  worker:
+    build: ./worker
+    image: docker.io/gordepuja8788/complex-worker
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379 
+   #React client
+  client:
+    build: ./client
+    image: docker.io/gordepuja8788/complex-client
+   # Nginx controller
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build: ./nginx
+    ports:
+      - '3050:80'
